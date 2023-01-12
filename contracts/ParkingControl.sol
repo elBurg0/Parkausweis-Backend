@@ -74,13 +74,12 @@ contract Parkausweis {
 
     function getParkingPass(string memory numbersplate) public view returns (ParkingTicket memory){
         require(allowed_confirmers[msg.sender], "Insufficient permissions");
-        require(tickets[plates[numbersplate]].is_valid && ticketsVisitor[plates[numbersplate]].is_valid, "Plate not valid"); 
+        require(tickets[plates[numbersplate]].is_valid || ticketsVisitor[plates[numbersplate]].is_valid, "Plate not valid"); 
 
         if(tickets[plates[numbersplate]].is_valid){
             return tickets[plates[numbersplate]];
-        } else {
-            return ticketsVisitor[plates[numbersplate]];
-        }
+        } 
+        return ticketsVisitor[plates[numbersplate]];
     }
 
     function claimVisitorPass(string memory numbersplate, uint256 date) public {
@@ -88,6 +87,10 @@ contract Parkausweis {
         require(tickets[msg.sender].is_valid);
 
         ParkingTicket memory parent_ticket = tickets[msg.sender];
+
+        if (date > parent_ticket.date_confirmed){
+            date = parent_ticket.date_confirmed;
+        }
 
         ticketsVisitor[msg.sender] = ParkingTicket(
             numbersplate,
@@ -99,9 +102,11 @@ contract Parkausweis {
         plates[numbersplate] = msg.sender;
     }
 
-
      function renewParkingPass() public {
-        // Rerequest parking ticket
+        Request memory old_req = requests[msg.sender];
+        delete requests[msg.sender];
+
+        claimParkingPass(old_req.numbersplate, old_req.place);
     }
 
     
