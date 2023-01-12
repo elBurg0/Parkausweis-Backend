@@ -72,7 +72,7 @@ contract Parkausweis {
         );
     } 
 
-    function getParkingPass(string memory numbersplate) public view returns (ParkingTicket memory){
+    function verifyParkingPass(string memory numbersplate) public view returns (ParkingTicket memory){
         require(allowed_confirmers[msg.sender], "Insufficient permissions");
         require(tickets[plates[numbersplate]].is_valid || ticketsVisitor[plates[numbersplate]].is_valid, "Plate not valid"); 
 
