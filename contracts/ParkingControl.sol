@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
-contract Parkausweis {
+contract ParkingControl {
     mapping(address => bool) allowed_editors;
     mapping(address => bool) allowed_confirmers;
     mapping(address => bool) allowed_workers;
@@ -41,6 +41,7 @@ contract Parkausweis {
 
     function claimParkingPass(string memory numbersplate, string memory place) public {
         require(bytes(numbersplate).length != 0 || bytes(place).length != 0, "can't claim parking pass without numbersplate or place");
+        // Check if plate not in plates
 
         requests[msg.sender] = Request(
             numbersplate,
