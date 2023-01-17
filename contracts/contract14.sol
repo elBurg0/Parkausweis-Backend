@@ -34,10 +34,12 @@ contract ParkingControl {
         bool is_valid;
     }
 
+    
+
     function claimParkingPass(string memory numbersplate, string memory place) public {
+        require(bytes(numbersplate).length != 0 || bytes(place).length != 0, "Can't claim parking pass without numbersplate or place");
         require(!(requests[numbersplate].is_init), "Already requested ticket for this plate");
         require(bytes(req_address_plates[msg.sender]).length == 0, "Already requested ticket with this address");
-        require(bytes(numbersplate).length != 0 || bytes(place).length != 0, "Can't claim parking pass without numbersplate or place");
         
         req_address_plates[msg.sender] = numbersplate;
 
@@ -87,6 +89,10 @@ contract ParkingControl {
 
     function claimVisitorPass(string memory numbersplate_visitor) external {
         require(tickets[address_plates[msg.sender]].is_valid, "No valid main ticket for current wallet");
+        string memory parent_plate = address_plates[msg.sender];
+
+        // calculate expiring date of visitor ticket
+        uint exp_date = block.timestamp + 60 days;
 
         // if wallet has created a visitor plate, check if its still valid
         if(bytes(address_visitorplates[msg.sender]).length != 0) {
@@ -98,10 +104,6 @@ contract ParkingControl {
                 delete tickets[address_visitorplates[msg.sender]];
             }
         }
-
-        string memory parent_plate = address_plates[msg.sender];
-        // calculate expiring date of visitor ticket
-        uint exp_date = block.timestamp + 60 days;
 
         // get main ticket
         Ticket memory parent_ticket = tickets[parent_plate];
@@ -127,8 +129,11 @@ contract ParkingControl {
 
      function renewParkingPass() external {
         require(tickets[address_plates[msg.sender]].is_valid, "No valid ticket for current wallet");
+        string memory plate = address_plates[msg.sender];
 
-        claimParkingPass(address_plates[msg.sender], tickets[address_plates[msg.sender]].place);
+        Ticket memory parent_ticket = tickets[plate];
+
+        claimParkingPass(plate, parent_ticket.place);
     }
 
     function addConfirmer(address conf_address) external {
