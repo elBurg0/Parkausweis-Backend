@@ -50,16 +50,23 @@ contract ParkingControl {
         );
     }
 
+    function deleteRequest(string memory numbersplate) public {
+        require(allowed_confirmers[msg.sender], "Insufficient permissions");
+        require(requests[numbersplate].is_init, "No request for this plate");
+
+        delete requests[numbersplate];
+    }
+
     function confirmParkingPass(string memory numbersplate) public {
         require(allowed_confirmers[msg.sender], "Insufficient permissions");
         require(requests[numbersplate].is_init, "No request for this plate");
+
+        uint exp_date = block.timestamp + 365 days;
 
         // get request
         Request memory req = requests[numbersplate];
         // add address to mapping with plate
         address_plates[req.req_address] = numbersplate;
-
-        uint exp_date = block.timestamp + 60 days;
 
         tickets[numbersplate] = Ticket(
             req.req_address,
@@ -85,7 +92,7 @@ contract ParkingControl {
         require(tickets[parent_plate].is_valid, "No valid main ticket for current wallet");
 
         // calculate expiring date of visitor ticket
-        uint exp_date = block.timestamp + 180 days;
+        uint exp_date = block.timestamp + 60 days;
 
         // if wallet has created a visitor plate, check if its still valid
         if(bytes(address_visitorplates[msg.sender]).length != 0) {
@@ -129,12 +136,12 @@ contract ParkingControl {
         claimParkingPass(plate, parent_ticket.place);
     }
 
-    function add_confirmer(address conf_address) public {
+    function addConfirmer(address conf_address) public {
         require(msg.sender == _owner, "Insufficient permissions");
         allowed_confirmers[conf_address] = true;
     }
 
-    function add_worker(address worker_address) public {
+    function addWorker(address worker_address) public {
         require(msg.sender == _owner, "Insufficient permissions");
         allowed_workers[worker_address] = true;
     }
