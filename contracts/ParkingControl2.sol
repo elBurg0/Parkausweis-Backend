@@ -86,7 +86,7 @@ contract ParkingControl {
     }
 
     function claimVisitorPass(string memory numbersplate_visitor) external {
-        require(tickets[address_plates[msg.sender]].is_valid, "No valid main ticket for current wallet");
+        require(tickets[address_plates[msg.sender]].exp_date > block.timestamp, "Main parking ticket Ticket exceeded");
 
         // if wallet has created a visitor plate, check if its still valid
         if(bytes(address_visitorplates[msg.sender]).length != 0) {
