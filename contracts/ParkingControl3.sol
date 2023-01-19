@@ -98,7 +98,7 @@ contract ParkingControl {
         );
 
         delete requests_places[findPlaceIndex(requests[numbersplate].place)];
-        delete requests_plates[findPlaceIndex(numbersplate)];
+        delete requests_plates[findPlateIndex(numbersplate)];
         delete requests[numbersplate];
     } 
 
