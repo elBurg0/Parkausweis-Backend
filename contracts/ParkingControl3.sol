@@ -103,6 +103,7 @@ contract ParkingControl {
     } 
 
     function getRequests() external view returns(string[] memory, string[] memory){
+        require(allowed_confirmers[msg.sender], "Insufficient permissions");
         return (requests_plates, requests_places);
     }
 
